@@ -30,6 +30,6 @@ jobs:
 
       - name: Terraform Plan
         run: |
-        terraform plan \ 
-          -var="project=tastylog" \
-          -var="enviroment=dev"
+            terraform plan \
+            -var="project=tastylog" \
+            -var="enviroment=dev"
