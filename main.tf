@@ -10,7 +10,6 @@ terraform {
     bucket  = "tastylog-tfstate-backet-fmanno"
     key     = "tastylog-dev.tfstate"
     region  = "ap-northeast-1"
-    profile = "terraform"
   }
 }
 
@@ -18,7 +17,6 @@ terraform {
 #Provider
 
 provider "aws" {
-  profile = "terraform"
   region  = "ap-northeast-1"
 }
 
