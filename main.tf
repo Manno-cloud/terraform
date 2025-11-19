@@ -101,7 +101,7 @@ resource "aws_security_group_rule" "allow_alb_to_ec2" {
 # ======================
 #  EC2 モジュール
 # ======================
-# module "ec2" {}
+# module "ec2"
 
 # ===========================
 # ASG モジュール
