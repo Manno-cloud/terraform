@@ -15,12 +15,11 @@ resource "aws_iam_role" "github_actions" {
             "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
           }
           StringLike = {
-            # Pull Request 用
-            "token.actions.githubusercontent.com:sub" = "repo:Manno-cloud/terraform:pull_request",
-            # main ブランチに push（apply 用）
-            "token.actions.githubusercontent.com:sub" = "repo:Manno-cloud/terraform:ref:refs/heads/main",
-            # 手動実行 (workflow_dispatch)
-            "token.actions.githubusercontent.com:sub" = "repo:Manno-cloud/terraform:workflow_dispatch"
+            "token.actions.githubusercontent.com:sub" = [
+              "repo:Manno-cloud/terraform:pull_request",
+              "repo:Manno-cloud/terraform:ref:refs/heads/main",
+              "repo:Manno-cloud/terraform:workflow_dispatch"
+            ]
           }
         }
       }
