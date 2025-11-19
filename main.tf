@@ -143,10 +143,8 @@ module "alb" {
     module.security_group.security_group_ids["alb_sg"]
   ]
 
-  instance_ids = [module.ec2.instance_id]
-  target_port  = 80
+  target_port = 80
 }
-
 # ======================
 #  iam モジュール
 # ======================
