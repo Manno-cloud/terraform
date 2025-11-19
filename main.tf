@@ -107,10 +107,10 @@ module "security_group" {
 }
 
 resource "aws_security_group_rule" "allow_alb_to_ec2" {
-  type                     = "ingress"
-  from_port                = 80
-  to_port                  = 80
-  protocol                 = "tcp"
+  type      = "ingress"
+  from_port = 80
+  to_port   = 80
+  protocol  = "tcp"
 
   security_group_id        = module.security_group.security_group_ids["ec2_sg"]
   source_security_group_id = module.security_group.security_group_ids["alb_sg"]

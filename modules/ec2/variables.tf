@@ -8,7 +8,7 @@ variable "env" {
 
 variable "name" {
   description = "EC2の役割名"
-  type = string
+  type        = string
 }
 
 variable "ami_id" {

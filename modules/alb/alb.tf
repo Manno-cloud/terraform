@@ -11,7 +11,7 @@ resource "aws_lb_target_group" "target_group" {
   port     = var.target_port
   protocol = "HTTP"
   vpc_id   = var.vpc_id
-  
+
   health_check {
     path                = "/"
     interval            = 30

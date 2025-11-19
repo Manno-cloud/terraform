@@ -27,17 +27,17 @@ resource "aws_security_group_rule" "ingress" {
   to_port           = each.value.rules[0].to_port
   protocol          = each.value.rules[0].protocol
 
-cidr_blocks = (
-  contains(keys(each.value.rules[0]), "cidr_blocks")
-  ? each.value.rules[0].cidr_blocks
-  : null
-)
+  cidr_blocks = (
+    contains(keys(each.value.rules[0]), "cidr_blocks")
+    ? each.value.rules[0].cidr_blocks
+    : null
+  )
 
-source_security_group_id = (
-  contains(keys(each.value.rules[0]), "source_sg")
-  ? each.value.rules[0].source_sg
-  : null
-)
+  source_security_group_id = (
+    contains(keys(each.value.rules[0]), "source_sg")
+    ? each.value.rules[0].source_sg
+    : null
+  )
 }
 
 ###############################
@@ -58,16 +58,16 @@ resource "aws_security_group_rule" "egress" {
   to_port           = each.value.rules[0].to_port
   protocol          = each.value.rules[0].protocol
 
-cidr_blocks = (
-  contains(keys(each.value.rules[0]), "cidr_blocks")
-  ? each.value.rules[0].cidr_blocks
-  : null
-)
+  cidr_blocks = (
+    contains(keys(each.value.rules[0]), "cidr_blocks")
+    ? each.value.rules[0].cidr_blocks
+    : null
+  )
 
-source_security_group_id = (
-  contains(keys(each.value.rules[0]), "source_sg")
-  ? each.value.rules[0].source_sg
-  : null
-)
+  source_security_group_id = (
+    contains(keys(each.value.rules[0]), "source_sg")
+    ? each.value.rules[0].source_sg
+    : null
+  )
 }
 
