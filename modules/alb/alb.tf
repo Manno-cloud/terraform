@@ -31,11 +31,3 @@ resource "aws_lb_listener" "http" {
     target_group_arn = aws_lb_target_group.target_group.arn
   }
 }
-
-# EC2 をターゲットグループへ登録
-resource "aws_lb_target_group_attachment" "target_rougp_attachment" {
-  count            = length(var.instance_ids)
-  target_group_arn = aws_lb_target_group.target_group.arn
-  target_id        = var.instance_ids[count.index]
-  port             = var.target_port
-}
