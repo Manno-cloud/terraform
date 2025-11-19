@@ -7,6 +7,8 @@ variable "tags" {
   default = {}
 }
 
+
+
 variable "security_groups" {
   description = "複数のセキュリティグループをまとめて作る"
   type = map(object({
