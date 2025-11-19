@@ -1,33 +1,158 @@
 terraform {
-  required_version = ">=0.13"
+  required_version = ">= 1.5.0"
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~>3.0"
+      version = "~> 5.0"
     }
   }
-  backend "s3" {
-    bucket  = "tastylog-tfstate-backet-fmanno"
-    key     = "tastylog-dev.tfstate"
-    region  = "ap-northeast-1"
+}
+
+provider "aws" {
+  region = var.region
+}
+
+# ======================
+#  VPC モジュール
+# ======================
+module "vpc" {
+  source = "./modules/vpc"
+
+  project = "testapp"
+  env     = "dev"
+
+  vpc_cidr = "10.0.0.0/16"
+
+  public_subnets = {
+    public1 = {
+      cidr = "10.0.1.0/24"
+      az   = "ap-northeast-1a"
+    }
+    public2 = {
+      cidr = "10.0.2.0/24"
+      az   = "ap-northeast-1c"
+    }
+  }
+
+  private_subnets = {
+    private1 = {
+      cidr = "10.0.10.0/24"
+      az   = "ap-northeast-1a"
+    }
+    private2 = {
+      cidr = "10.0.11.0/24"
+      az   = "ap-northeast-1c"
+    }
   }
 }
 
+# ======================
+#  Security Group モジュール
+# ======================
+module "security_group" {
+  source = "./modules/security_group"
 
-#Provider
+  vpc_id = module.vpc.vpc_id
 
-provider "aws" {
-  region  = "ap-northeast-1"
+  security_groups = {
+    alb_sg = {
+      description = "ALB SG"
+      ingress = {
+        rules = [
+          {
+            from_port   = 80
+            to_port     = 80
+            protocol    = "tcp"
+            cidr_blocks = ["0.0.0.0/0"]
+          }
+        ]
+      }
+      egress = {
+        rules = [
+          {
+            from_port   = 0
+            to_port     = 0
+            protocol    = "-1"
+            cidr_blocks = ["0.0.0.0/0"]
+          }
+        ]
+      }
+    }
+
+    ec2_sg = {
+      description = "EC2 SG"
+      ingress = {
+        rules = [
+          {
+            from_port = 80
+            to_port   = 80
+            protocol  = "tcp"
+            source_sg = "alb_sg"
+          }
+        ]
+      }
+      egress = {
+        rules = [
+          {
+            from_port   = 0
+            to_port     = 0
+            protocol    = "-1"
+            cidr_blocks = ["0.0.0.0/0"]
+          }
+        ]
+      }
+    }
+  }
 }
 
-#Variables
+resource "aws_security_group_rule" "allow_alb_to_ec2" {
+  type                     = "ingress"
+  from_port                = 80
+  to_port                  = 80
+  protocol                 = "tcp"
 
-variable "project" {
-  type = string
+  security_group_id        = module.security_group.security_group_ids["ec2_sg"]
+  source_security_group_id = module.security_group.security_group_ids["alb_sg"]
 }
 
-variable "enviroment" {
-  type = string
-  default = "dev"
+# ======================
+#  EC2 モジュール
+# ======================
+module "ec2" {
+  source = "./modules/ec2"
+
+  project = "testapp"
+  env     = "dev"
+  name    = "testapp-web"
+
+  ami_id = "ami-0e68e34976bb4db93"
+
+  # VPC モジュールの private_subnets の出力名に注意！
+  subnet_id = module.vpc.private_subnet_ids[0]
+
+  security_group_ids = [
+    module.security_group.security_group_ids["ec2_sg"]
+  ]
+
+  instance_type = "t3.micro"
+  user_data     = ""
 }
 
+# ======================
+#  ALB モジュール
+# ======================
+module "alb" {
+  source = "./modules/alb"
+
+  name    = "testapp"
+  vpc_id  = module.vpc.vpc_id
+  subnets = module.vpc.public_subnet_ids
+
+  security_group_ids = [
+    module.security_group.security_group_ids["alb_sg"]
+  ]
+
+  instance_ids = [module.ec2.instance_id]
+  target_port  = 80
+}
