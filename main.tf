@@ -101,23 +101,32 @@ resource "aws_security_group_rule" "allow_alb_to_ec2" {
 # ======================
 #  EC2 モジュール
 # ======================
-module "ec2" {
-  source = "./modules/ec2"
+# module "ec2" {}
+
+# ===========================
+# ASG モジュール
+# ===========================
+module "asg" {
+  source = "./modules/asg"
 
   project = "testapp"
   env     = "dev"
-  name    = "web"
 
-  ami_id = "ami-0e68e34976bb4db93"
-
-  subnet_id = module.vpc.private_subnet_ids[0]
+  subnet_ids = module.vpc.private_subnet_ids
 
   security_group_ids = [
     module.security_group.security_group_ids["ec2_sg"]
   ]
 
-  instance_type = "t3.micro"
-  user_data     = ""
+  ami_id         = "ami-0e68e34976bb4db93"
+  instance_type  = "t3.micro"
+  user_data      = ""
+
+  desired_capacity = 2
+  min_size         = 1
+  max_size         = 3
+
+  target_group_arn = module.alb.target_group_arn
 }
 
 # ======================
