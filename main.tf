@@ -1,8 +1,6 @@
 terraform {
   required_version = ">= 1.5.0"
-#test
-#test33
-#test33
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -67,6 +65,9 @@ module "security_group" {
   }
 }
 
+# ======================
+#  Security Group ルール
+# ======================
 resource "aws_security_group_rule" "alb_ingress" {
   type              = "ingress"
   from_port         = 80
@@ -105,11 +106,10 @@ module "ec2" {
 
   project = "testapp"
   env     = "dev"
-  name    = "testapp-web"
+  name    = "web"
 
   ami_id = "ami-0e68e34976bb4db93"
 
-  # VPC モジュールの private_subnets の出力名に注意！
   subnet_id = module.vpc.private_subnet_ids[0]
 
   security_group_ids = [
