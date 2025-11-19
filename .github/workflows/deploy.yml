@@ -6,7 +6,7 @@ on:
     types: [opened, synchronize, reopened, closed]
 
 permissions:
-  id-token: write        # ← OIDC AssumeRole に必須（絶対必要）
+  id-token: write
   contents: read
   pull-requests: write
 
@@ -78,3 +78,4 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
+
