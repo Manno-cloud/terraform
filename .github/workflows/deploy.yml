@@ -3,6 +3,7 @@ name: Terraform CI/CD
 on:
   pull_request:
     branches: [ "main" ]
+    types: [opened, synchronize, reopened, closed]
 
 permissions:
   contents: read
@@ -52,10 +53,10 @@ jobs:
             ```
 
   terraform-apply:
-    if: github.event_name == 'push'
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
-    # ← これが承認ステップを発生させる！🔥
+
     environment:
       name: production
       url: https://github.com/${{ github.repository }}
