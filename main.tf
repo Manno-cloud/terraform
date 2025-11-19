@@ -85,24 +85,10 @@ module "security_group" {
     ec2_sg = {
       description = "EC2 SG"
       ingress = {
-        rules = [
-          {
-            from_port   = 0
-            to_port     = 0
-            protocol    = "-1"
-            cidr_blocks = ["0.0.0.0/0"]
-          }
-        ]
+        rules = []
       }
       egress = {
-        rules = [
-          {
-            from_port   = 0
-            to_port     = 0
-            protocol    = "-1"
-            cidr_blocks = ["0.0.0.0/0"]
-          }
-        ]
+        rules = []
       }
     }
   }
