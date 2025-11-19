@@ -137,3 +137,11 @@ module "alb" {
   instance_ids = [module.ec2.instance_id]
   target_port  = 80
 }
+
+# ======================
+#  iam モジュール
+# ======================
+
+module "iam" {
+  source = "./iam"
+}
