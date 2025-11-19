@@ -60,38 +60,31 @@ module "security_group" {
   security_groups = {
     alb_sg = {
       description = "ALB SG"
-      ingress = {
-        rules = [
-          {
-            from_port   = 80
-            to_port     = 80
-            protocol    = "tcp"
-            cidr_blocks = ["0.0.0.0/0"]
-          }
-        ]
-      }
-      egress = {
-        rules = [
-          {
-            from_port   = 0
-            to_port     = 0
-            protocol    = "-1"
-            cidr_blocks = ["0.0.0.0/0"]
-          }
-        ]
-      }
     }
-
     ec2_sg = {
       description = "EC2 SG"
-      ingress = {
-        rules = []
-      }
-      egress = {
-        rules = []
-      }
     }
   }
+}
+
+resource "aws_security_group_rule" "alb_ingress" {
+  type              = "ingress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = module.security_group.security_group_ids["alb_sg"]
+}
+
+resource "aws_security_group_rule" "ec2_egress" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = module.security_group.security_group_ids["ec2_sg"]
 }
 
 resource "aws_security_group_rule" "allow_alb_to_ec2" {
