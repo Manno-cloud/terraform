@@ -7,29 +7,10 @@ variable "tags" {
   default = {}
 }
 
-
-
 variable "security_groups" {
-  description = "複数のセキュリティグループをまとめて作る"
+  description = "複数の SG（本体のみ）を作る"
   type = map(object({
     description = string
-    ingress = object({
-      rules = list(object({
-        from_port   = optional(number)
-        to_port     = optional(number)
-        protocol    = optional(string)
-        cidr_blocks = optional(list(string))
-        source_sg   = optional(string)
-      }))
-    })
-    egress = object({
-      rules = list(object({
-        from_port   = optional(number)
-        to_port     = optional(number)
-        protocol    = optional(string)
-        cidr_blocks = optional(list(string))
-        source_sg   = optional(string)
-      }))
-    })
+    # ルールはモジュール外で作るので不要
   }))
 }
