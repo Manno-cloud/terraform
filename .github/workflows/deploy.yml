@@ -6,6 +6,7 @@ on:
     types: [opened, synchronize, reopened, closed]
 
 permissions:
+  id-token: write        # ← OIDC AssumeRole に必須（絶対必要）
   contents: read
   pull-requests: write
 
@@ -54,7 +55,6 @@ jobs:
   terraform-apply:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
-
 
     environment:
       name: production
