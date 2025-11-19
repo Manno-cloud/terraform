@@ -5,17 +5,22 @@ resource "aws_iam_role" "github_actions" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect = "Allow"
+        Effect   = "Allow"
         Principal = {
           Federated = aws_iam_openid_connect_provider.github.arn
         }
         Action = "sts:AssumeRoleWithWebIdentity"
         Condition = {
           StringEquals = {
-            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com",
-          },
+            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+          }
           StringLike = {
-            "token.actions.githubusercontent.com:sub" = "repo:Manno-cloud/terraform:pull_request"
+            # Pull Request 用
+            "token.actions.githubusercontent.com:sub" = "repo:Manno-cloud/terraform:pull_request",
+            # main ブランチに push（apply 用）
+            "token.actions.githubusercontent.com:sub" = "repo:Manno-cloud/terraform:ref:refs/heads/main",
+            # 手動実行 (workflow_dispatch)
+            "token.actions.githubusercontent.com:sub" = "repo:Manno-cloud/terraform:workflow_dispatch"
           }
         }
       }
