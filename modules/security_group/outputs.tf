@@ -1,6 +1,7 @@
 output "security_group_ids" {
+  description = "name => sg-id のマッピング"
   value = {
-    for sg, data in aws_security_group.security_group :
-    sg => data.id
+    for k, sg in aws_security_group.this :
+    k => sg.id
   }
 }
