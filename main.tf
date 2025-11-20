@@ -63,7 +63,7 @@ module "security_group" {
       description = "EC2 SG"
     }
 
-      vpc_endpoint_sg = {
+    vpc_endpoint_sg = {
       description = "vpc_endpoint SG"
     }
   }
@@ -73,20 +73,20 @@ module "security_group" {
 #  Security Group ルール
 # ======================
 resource "aws_security_group_rule" "alb_ingress" {
-  type              = "ingress"
-  from_port         = 80
-  to_port           = 80
-  protocol          = "tcp"
+  type      = "ingress"
+  from_port = 80
+  to_port   = 80
+  protocol  = "tcp"
 
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = module.security_group.security_group_ids["alb_sg"]
 }
 
 resource "aws_security_group_rule" "ec2_egress" {
-  type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
+  type      = "egress"
+  from_port = 0
+  to_port   = 0
+  protocol  = "-1"
 
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = module.security_group.security_group_ids["ec2_sg"]
@@ -103,23 +103,23 @@ resource "aws_security_group_rule" "allow_alb_to_ec2" {
 }
 
 resource "aws_security_group_rule" "vpc_endpoint_ingress" {
-  type              = "ingress"
-  from_port         = 443
-  to_port           = 443
-  protocol          = "tcp"
+  type      = "ingress"
+  from_port = 443
+  to_port   = 443
+  protocol  = "tcp"
 
-  cidr_blocks = ["10.0.0.0/8"]
+  cidr_blocks       = ["10.0.0.0/8"]
   security_group_id = module.security_group.security_group_ids["vpc_endpoint_sg"]
-  
+
 }
 
 resource "aws_security_group_rule" "vpc_endpoint_egress" {
-  type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
+  type      = "egress"
+  from_port = 0
+  to_port   = 0
+  protocol  = "-1"
 
-  cidr_blocks = ["0.0.0.0/0"]
+  cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = module.security_group.security_group_ids["vpc_endpoint_sg"]
 }
 
@@ -142,9 +142,9 @@ module "asg" {
     module.security_group.security_group_ids["ec2_sg"]
   ]
 
-  ami_id         = "ami-0e68e34976bb4db93"
-  instance_type  = "t3.micro"
-  user_data      = ""
+  ami_id        = "ami-0e68e34976bb4db93"
+  instance_type = "t3.micro"
+  user_data     = ""
 
   desired_capacity = 2
   min_size         = 1
@@ -180,4 +180,14 @@ module "networking" {
   route53_zone_id = module.networking.route53_zone_id
   project         = "testapp"
   env             = "dev"
+}
+
+module "vpc_endpoint" {
+  source                  = "./vpc_endpoint"
+  vpc_id                  = module.vpc.vpc_id
+  private_subnet_ids      = module.vpc.private_subnet_ids
+  private_route_table_ids = module.vpc.private_route_table_ids
+  vpc_endpoint_sg_id      = module.security_group.security_group_ids["vpc_endpoint_sg"]
+  project                 = "testapp"
+  env                     = "dev"
 }
