@@ -144,7 +144,7 @@ module "asg" {
 
   ami_id        = "ami-0e68e34976bb4db93"
   instance_type = "t3.micro"
-   user_data = file("${path.module}/user_data.sh") 
+  user_data = file("${path.root}/user_data.sh")
 
   desired_capacity = 2
   min_size         = 1
