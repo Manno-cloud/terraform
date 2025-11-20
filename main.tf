@@ -13,6 +13,11 @@ provider "aws" {
   region = var.region
 }
 
+provider "aws" {
+  alias  = "us_east_1"
+  region = "us-east-1"
+}
+
 # ======================
 #  VPC モジュール
 # ======================
@@ -243,4 +248,21 @@ module "rds" {
   db_name  = "appdb"
   username = "admin"
   password = "Password1234!"
+}
+
+# ======================
+#  CDN モジュール
+# ======================
+module "cdn" {
+  source = "./modules/cdn"
+
+  providers = {
+    aws          = aws
+    aws.us_east_1 = aws.us_east_1
+  }
+
+  project        = "testapp"
+  env            = "dev"
+  domain_name    = "cdn.manno-cloud.com"
+  hosted_zone_id = module.networking.route53_zone_id
 }
