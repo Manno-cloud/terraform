@@ -108,7 +108,7 @@ resource "aws_security_group_rule" "vpc_endpoint_ingress" {
   to_port   = 443
   protocol  = "tcp"
 
-  cidr_blocks       = ["10.0.0.0/8"]
+  source_security_group_id = module.security_group.security_group_ids["ec2_sg"]
   security_group_id = module.security_group.security_group_ids["vpc_endpoint_sg"]
 
 }
