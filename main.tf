@@ -72,12 +72,20 @@ module "security_group" {
 # ======================
 #  Security Group ルール
 # ======================
-resource "aws_security_group_rule" "alb_ingress" {
+resource "aws_security_group_rule" "alb_ingress_http" {
   type      = "ingress"
   from_port = 80
   to_port   = 80
   protocol  = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = module.security_group.security_group_ids["alb_sg"]
+}
 
+resource "aws_security_group_rule" "alb_ingress_https" {
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = module.security_group.security_group_ids["alb_sg"]
 }
