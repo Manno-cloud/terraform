@@ -8,6 +8,9 @@ resource "aws_vpc" "vpc" {
   }, var.tags)
 }
 
+##############################
+# Public Subnets
+##############################
 resource "aws_subnet" "public" {
   for_each = var.public_subnets
 
@@ -20,6 +23,10 @@ resource "aws_subnet" "public" {
     Name = "${var.project}-${var.env}-public-${each.key}"
   }, var.tags)
 }
+
+##############################
+# Private Subnets
+##############################
 resource "aws_subnet" "private" {
   for_each = var.private_subnets
 
@@ -32,6 +39,9 @@ resource "aws_subnet" "private" {
   }, var.tags)
 }
 
+##############################
+# Internet Gateway
+##############################
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.vpc.id
 
@@ -40,6 +50,9 @@ resource "aws_internet_gateway" "igw" {
   }, var.tags)
 }
 
+##############################
+# Public Route Table
+##############################
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.vpc.id
 
@@ -59,8 +72,38 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public.id
 }
 
+########################################
+# NAT Gateway
+########################################
+resource "aws_eip" "nat_eip" {
+  domain = "vpc"
+
+  tags = merge({
+    Name = "${var.project}-${var.env}-nat-eip"
+  }, var.tags)
+}
+
+resource "aws_nat_gateway" "nat" {
+  allocation_id = aws_eip.nat_eip.id
+  subnet_id     = aws_subnet.public["public1"].id
+
+  tags = merge({
+    Name = "${var.project}-${var.env}-nat"
+  }, var.tags)
+
+  depends_on = [aws_internet_gateway.igw]
+}
+
+########################################
+# Private Route Table (NAT 経由)
+########################################
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.vpc.id
+
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.nat.id
+  }
 
   tags = merge({
     Name = "${var.project}-${var.env}-private-rt"
@@ -68,7 +111,8 @@ resource "aws_route_table" "private" {
 }
 
 resource "aws_route_table_association" "private" {
-  for_each       = aws_subnet.private
+  for_each = aws_subnet.private
+
   subnet_id      = each.value.id
   route_table_id = aws_route_table.private.id
 }
