@@ -1,9 +1,9 @@
 resource "aws_autoscaling_group" "asg" {
-  name                      = "${var.project}-${var.env}-asg"
-  max_size                  = var.max_size
-  min_size                  = var.min_size
-  desired_capacity          = var.desired_capacity
-  vpc_zone_identifier       = var.subnet_ids
+  name                = "${var.project}-${var.env}-asg"
+  max_size            = var.max_size
+  min_size            = var.min_size
+  desired_capacity    = var.desired_capacity
+  vpc_zone_identifier = var.subnet_ids
 
   launch_template {
     id      = aws_launch_template.lt.id

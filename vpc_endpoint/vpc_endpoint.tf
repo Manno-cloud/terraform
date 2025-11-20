@@ -20,12 +20,12 @@ locals {
 resource "aws_vpc_endpoint" "interface" {
   for_each = toset(local.interface_endpoints)
 
-  vpc_id            = module.networking.vpc_id
+  vpc_id            = var.vpc_id
   service_name      = "com.amazonaws.${var.region}.${each.value}"
   vpc_endpoint_type = "Interface"
 
-  subnet_ids         = module.networking.private_subnet_ids
-  security_group_ids = module.security_group.security_group_ids["vpc_endpoint_sg"]
+  subnet_ids         = var.private_subnet_ids
+  security_group_ids = [var.vpc_endpoint_sg_id]
 
   private_dns_enabled = true
 
@@ -47,11 +47,11 @@ locals {
 resource "aws_vpc_endpoint" "gateway" {
   for_each = toset(local.gateway_endpoints)
 
-  vpc_id            = module.networking.vpc_id
+  vpc_id            = var.vpc_id
   vpc_endpoint_type = "Gateway"
   service_name      = "com.amazonaws.${var.region}.${each.value}"
 
-  route_table_ids = module.networking.private_route_table_ids
+  route_table_ids = var.private_route_table_ids
 
   tags = {
     Name = "${var.project}-${var.env}-${each.value}-gateway-endpoint"

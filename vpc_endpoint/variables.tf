@@ -14,3 +14,8 @@ variable "region" {
   type        = string
   default     = "ap-northeast-1"
 }
+
+variable "vpc_id" {}
+variable "private_subnet_ids" {}
+variable "private_route_table_ids" {}
+variable "vpc_endpoint_sg_id" {}
