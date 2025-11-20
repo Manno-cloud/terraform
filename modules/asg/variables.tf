@@ -40,3 +40,8 @@ variable "max_size" {
 variable "target_group_arn" {
   type = string
 }
+
+variable "iam_instance_profile_name" {
+  type        = string
+  description = "IAM instance profile name"
+}

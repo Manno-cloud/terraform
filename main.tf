@@ -169,6 +169,7 @@ module "asg" {
   max_size         = 3
 
   target_group_arn = module.alb.target_group_arn
+  iam_instance_profile_name = "tastylog-dev-app-instance-profile"
 }
 
 # ======================
