@@ -153,7 +153,7 @@ module "networking" {
   source = "./networking"
 
   domain_name     = "manno-coud.com"
-  route53_zone_id = "Z0503722I9WYWDH7TZ72"
+  route53_zone_id = module.networking.route53_zone_id
   project         = "testapp"
   env             = "dev"
 }
