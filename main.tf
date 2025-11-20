@@ -101,7 +101,6 @@ resource "aws_security_group_rule" "allow_alb_to_ec2" {
 # ======================
 #  EC2 モジュール
 # ======================
-# module "ec2"""""
 
 # ===========================
 # ASG モジュール
@@ -152,7 +151,7 @@ module "alb" {
 module "networking" {
   source = "./networking"
 
-  domain_name     = "manno-coud.com"
+  domain_name     = "manno-cloud.com"
   route53_zone_id = module.networking.route53_zone_id
   project         = "testapp"
   env             = "dev"
