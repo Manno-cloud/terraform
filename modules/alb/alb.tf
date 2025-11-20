@@ -1,3 +1,7 @@
+############################################
+#  Application Load Balancer (ALB)
+############################################
+
 resource "aws_lb" "alb" {
   name               = "${var.name}-alb"
   load_balancer_type = "application"
@@ -5,6 +9,10 @@ resource "aws_lb" "alb" {
   subnets            = var.subnets
   security_groups    = var.security_group_ids
 }
+
+############################################
+#  Target Group
+############################################
 
 resource "aws_lb_target_group" "target_group" {
   name     = "${var.name}-tg"
@@ -21,10 +29,36 @@ resource "aws_lb_target_group" "target_group" {
   }
 }
 
-resource "aws_lb_listener" "http" {
+############################################
+#  HTTP → HTTPS Redirect Listener (port 80)
+############################################
+
+resource "aws_lb_listener" "http_redirect" {
   load_balancer_arn = aws_lb.alb.arn
   port              = 80
   protocol          = "HTTP"
+
+  default_action {
+    type = "redirect"
+
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+}
+
+############################################
+#  HTTPS Listener (port 443)
+############################################
+
+resource "aws_lb_listener" "https" {
+  load_balancer_arn = aws_lb.alb.arn
+  port              = 443
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = var.certificate_arn
 
   default_action {
     type             = "forward"

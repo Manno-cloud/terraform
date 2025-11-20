@@ -144,4 +144,16 @@ module "alb" {
   ]
 
   target_port = 80
+
+  certificate_arn = module.networking.acm_validated_certificate_arn
+  enable_https    = true
+}
+
+module "networking" {
+  source = "./networking"
+
+  domain_name     = "manno-coud.com"
+  route53_zone_id = "Z0503722I9WYWDH7TZ72"
+  project         = "testapp"
+  env             = "dev"
 }
