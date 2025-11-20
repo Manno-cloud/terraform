@@ -46,3 +46,5 @@ echo "===== Route Table ====="
 ip route
 
 echo "===== SSM Health Check Completed ====="
+
+echo "force update" > /dev/null
