@@ -62,6 +62,10 @@ module "security_group" {
     ec2_sg = {
       description = "EC2 SG"
     }
+
+      vpc_endpoint_sg = {
+      description = "vpc_endpoint SG"
+    }
   }
 }
 
@@ -96,6 +100,27 @@ resource "aws_security_group_rule" "allow_alb_to_ec2" {
 
   security_group_id        = module.security_group.security_group_ids["ec2_sg"]
   source_security_group_id = module.security_group.security_group_ids["alb_sg"]
+}
+
+resource "aws_security_group_rule" "vpc_endpoint_ingress" {
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+
+  cidr_blocks = ["10.0.0.0/8"]
+  security_group_id = module.security_group.security_group_ids["vpc_endpoint_sg"]
+  
+}
+
+resource "aws_security_group_rule" "vpc_endpoint_egress" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+
+  cidr_blocks = ["0.0.0.0/0"]
+  security_group_id = module.security_group.security_group_ids["vpc_endpoint_sg"]
 }
 
 # ======================
@@ -144,7 +169,7 @@ module "alb" {
 
   target_port = 80
 
-  certificate_arn = module.networking.acm_validated_certificate_arn
+  certificate_arn = module.networking.acm_certificate_arn
   enable_https    = true
 }
 
