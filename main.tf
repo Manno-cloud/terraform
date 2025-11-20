@@ -66,6 +66,10 @@ module "security_group" {
     vpc_endpoint_sg = {
       description = "vpc_endpoint SG"
     }
+
+        rds_sg = {
+      description = "RDS SG"
+    }
   }
 }
 
@@ -141,6 +145,15 @@ resource "aws_security_group_rule" "vpc_endpoint_egress" {
   security_group_id = module.security_group.security_group_ids["vpc_endpoint_sg"]
 }
 
+resource "aws_security_group_rule" "allow_ec2_to_rds" {
+  type                     = "ingress"
+  from_port                = 3306
+  to_port                  = 3306
+  protocol                 = "tcp"
+  security_group_id        = module.security_group.security_group_ids["rds_sg"]
+  source_security_group_id = module.security_group.security_group_ids["ec2_sg"]
+}
+
 # ======================
 #  EC2 モジュール
 # ======================
@@ -209,4 +222,25 @@ module "vpc_endpoint" {
   vpc_endpoint_sg_id      = module.security_group.security_group_ids["vpc_endpoint_sg"]
   project                 = "testapp"
   env                     = "dev"
+}
+
+# ======================
+#  RDS モジュール
+# ======================
+
+module "rds" {
+  source = "./modules/rds"
+
+  project = "testapp"
+  env     = "dev"
+
+  subnet_ids = module.vpc.private_subnet_ids
+
+  vpc_security_group_ids = [
+    module.security_group.security_group_ids["rds_sg"]
+  ]
+
+  db_name  = "appdb"
+  username = "admin"
+  password = "Password1234!"
 }

@@ -47,4 +47,26 @@ ip route
 
 echo "===== SSM Health Check Completed ====="
 
-echo "force update" > /dev/null
+
+#############################################
+#   Web Server Setup (Apache)
+#############################################
+
+echo "===== Installing Apache ====="
+
+if command -v dnf &> /dev/null; then
+    dnf install -y httpd
+else
+    yum install -y httpd
+fi
+
+echo "===== Starting Apache ====="
+systemctl enable httpd
+systemctl start httpd
+
+echo "===== Creating index.html ====="
+echo "<h1>It Works!!! $(hostname)</h1>" > /var/www/html/index.html
+
+chown apache:apache /var/www/html/index.html || true
+
+echo "===== Web Server Setup Completed ====="
