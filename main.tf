@@ -90,6 +90,16 @@ resource "aws_security_group_rule" "alb_ingress_https" {
   security_group_id = module.security_group.security_group_ids["alb_sg"]
 }
 
+resource "aws_security_group_rule" "alb_to_ec2" {
+  type                     = "egress"
+  from_port                = 80
+  to_port                  = 80
+  protocol                 = "tcp"
+
+  source_security_group_id = module.security_group.security_group_ids["ec2_sg"]
+  security_group_id        = module.security_group.security_group_ids["alb_sg"]
+}
+
 resource "aws_security_group_rule" "ec2_egress" {
   type      = "egress"
   from_port = 0
