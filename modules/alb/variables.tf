@@ -24,3 +24,15 @@ variable "target_port" {
   type        = number
   default     = 80
 }
+
+variable "certificate_arn" {
+  type        = string
+  description = "ACM certificate ARN for HTTPS listener"
+  default     = null
+}
+
+variable "enable_https" {
+  type        = bool
+  description = "Whether to enable HTTPS listener"
+  default     = false
+}

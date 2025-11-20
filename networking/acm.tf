@@ -3,7 +3,7 @@
 ##############################
 
 resource "aws_acm_certificate" "acm" {
-  domain_name       = var.domain_name       # 例: app.example.com
+  domain_name       = var.domain_name
   validation_method = "DNS"
 
   lifecycle {
@@ -21,7 +21,7 @@ resource "aws_acm_certificate" "acm" {
 
 resource "aws_route53_record" "cert_validation" {
   for_each = {
-    for dvo in aws_acm_certificate.cert.domain_validation_options :
+    for dvo in aws_acm_certificate.acm.domain_validation_options :
     dvo.domain_name => {
       name  = dvo.resource_record_name
       type  = dvo.resource_record_type
@@ -29,7 +29,7 @@ resource "aws_route53_record" "cert_validation" {
     }
   }
 
-  zone_id = var.route53_zone_id  # Hosted Zone ID
+  zone_id = var.route53_zone_id
   name    = each.value.name
   type    = each.value.type
   ttl     = 60
@@ -41,19 +41,19 @@ resource "aws_route53_record" "cert_validation" {
 ##############################
 
 resource "aws_acm_certificate_validation" "cert_validation" {
-  certificate_arn         = aws_acm_certificate.cert.arn
+  certificate_arn         = aws_acm_certificate.acm.arn
   validation_record_fqdns = [
     for record in aws_route53_record.cert_validation : record.fqdn
   ]
 }
 
 ##############################
-# 出力（ALB で使う用）
+# 出力
 ##############################
 
 output "acm_certificate_arn" {
   description = "ALB HTTPS Listener 用の証明書 ARN"
-  value       = aws_acm_certificate.cert.arn
+  value       = aws_acm_certificate.acm.arn
 }
 
 output "acm_validated_certificate_arn" {
