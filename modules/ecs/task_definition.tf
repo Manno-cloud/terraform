@@ -20,14 +20,14 @@ resource "aws_ecs_task_definition" "app" {
         }
       ]
 
-      logConfiguration = {
-        logDriver = "awslogs"
-        options = {
-          awslogs-group         = "/ecs/${var.project}-${var.env}"
-          awslogs-region        = var.region
-          awslogs-stream-prefix = "ecs"
-        }
-      }
+logConfiguration = {
+  logDriver = "awslogs"
+  options = {
+    awslogs-region        = var.region
+    awslogs-group         = aws_cloudwatch_log_group.ecs.name
+    awslogs-stream-prefix = "ecs"
+  }
+}
     }
   ])
 }
