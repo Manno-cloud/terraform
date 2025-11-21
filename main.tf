@@ -373,7 +373,7 @@ module "ecs" {
   alb_sg_id = module.security_group.security_group_ids["alb_sg"]
   ecs_sg_id = module.security_group.security_group_ids["ecs_sg"]
 
-  target_group_arn = module.alb.target_group_arn
+  target_group_arn = module.alb_ecs.target_group_arn
 
   ecs_task_execution_role_arn = module.iam.ecs_execution_role_arn
   ecs_task_role_arn           = module.iam.ecs_task_role_arn
