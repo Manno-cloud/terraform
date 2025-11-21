@@ -18,7 +18,7 @@ resource "aws_ecr_repository" "app" {
 # CloudWatch Logs
 ############################################
 resource "aws_cloudwatch_log_group" "ecs" {
-  name              = "/ecs/${var.project}-${var.env}"
+  name              = "/ecs/${var.project}-${var.env}-nginx"
   retention_in_days = 7
 }
 
