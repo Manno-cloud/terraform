@@ -281,9 +281,13 @@ module "cdn" {
 module "waf" {
   source = "./modules/waf"
 
+  providers = {
+    aws          = aws
+    aws.us_east_1 = aws.us_east_1
+  }
+
   project = "testapp"
   env     = "dev"
 
   cloudfront_distribution_arn = module.cdn.cdn_distribution_arn
-  
 }
