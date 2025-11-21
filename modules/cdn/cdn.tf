@@ -30,9 +30,6 @@ resource "aws_s3_bucket_public_access_block" "cdn" {
   ignore_public_acls      = true
   restrict_public_buckets = true
 
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
 ############################################
@@ -45,9 +42,6 @@ resource "aws_cloudfront_origin_access_control" "oac" {
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"
 
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
 ############################################
