@@ -164,18 +164,7 @@ resource "aws_security_group_rule" "allow_ec2_to_rds" {
   source_security_group_id = module.security_group.security_group_ids["ec2_sg"]
 }
 
-
-resource "aws_security_group_rule" "allow_alb_to_rds" {
-  type                     = "ingress"
-  from_port                = 3306
-  to_port                  = 3306
-  protocol                 = "tcp"
-  security_group_id        = module.security_group.security_group_ids["rds_sg"]
-  source_security_group_id = module.security_group.security_group_ids["ec2_sg"]
-}
-
-
-resource "aws_security_group_rule" "allow_ec2_to_ecs" {
+resource "aws_security_group_rule" "allow_alb_to_ecs" {
   type                     = "ingress"
   from_port                = 80
   to_port                  = 80
@@ -205,6 +194,7 @@ module "iam" {
   project = "testapp"
   env     = "dev"
 }
+
 
 # ======================
 #  EC2 モジュール
@@ -240,6 +230,7 @@ module "asg" {
 # ======================
 #  ALB モジュール
 # ======================
+#EC2用ALB
 module "alb" {
   source = "./modules/alb"
 
@@ -252,9 +243,26 @@ module "alb" {
   ]
 
   target_port = 80
+  target_type = "instance"
 
   certificate_arn = module.networking.acm_certificate_arn
   enable_https    = true
+}
+
+#ECS用ALB
+module "alb_ecs" {
+  source = "./modules/alb"
+
+  name    = "testapp-ecs"
+  vpc_id  = module.vpc.vpc_id
+  subnets = module.vpc.public_subnet_ids
+
+  security_group_ids = [module.security_group.security_group_ids["alb_sg"]]
+
+  target_port = 80
+  target_type = "ip"
+
+  certificate_arn = module.networking.acm_certificate_arn
 }
 
 # ======================
