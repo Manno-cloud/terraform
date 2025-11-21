@@ -12,15 +12,13 @@ terraform {
 
 resource "aws_s3_bucket" "cdn" {
   bucket = "${var.project}-${var.env}-cdn-images"
-
+ lifecycle {
+    prevent_destroy= true
+  }
   tags = {
     Name    = "${var.project}-${var.env}-cdn-bucket"
     Project = var.project
     Env     = var.env
-  }
-
-  lifecycle {
-    prevent_destroy = true
   }
 }
 
@@ -67,6 +65,10 @@ resource "aws_acm_certificate" "cf" {
     Env     = var.env
   }
 
+ lifecycle {
+    create_before_destroy = true
+  }
+
 }
 
 resource "aws_route53_record" "cf_validation" {
@@ -85,12 +87,20 @@ resource "aws_route53_record" "cf_validation" {
   ttl     = 60
   records = [each.value.value]
 
+ lifecycle {
+    create_before_destroy = true
+  }
+
 }
 
 resource "aws_acm_certificate_validation" "cf" {
   provider                = aws.us_east_1
   certificate_arn         = aws_acm_certificate.cf.arn
   validation_record_fqdns = [for r in aws_route53_record.cf_validation : r.fqdn]
+
+ lifecycle {
+    create_before_destroy = true
+  }
 
 }
 
@@ -106,6 +116,10 @@ resource "aws_cloudfront_distribution" "cdn" {
   aliases = [var.domain_name]
   default_root_object = "index.html"
   web_acl_id = var.web_acl_arn
+
+   lifecycle {
+    create_before_destroy = true
+  }
 
   origin {
     domain_name = aws_s3_bucket.cdn.bucket_regional_domain_name
@@ -171,5 +185,8 @@ resource "aws_route53_record" "cdn_alias" {
     evaluate_target_health = false
   }
 
+ lifecycle {
+    create_before_destroy = true
+  }
 
 }
