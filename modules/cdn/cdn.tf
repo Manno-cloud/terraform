@@ -67,9 +67,6 @@ resource "aws_acm_certificate" "cf" {
     Env     = var.env
   }
 
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
 resource "aws_route53_record" "cf_validation" {
@@ -88,9 +85,6 @@ resource "aws_route53_record" "cf_validation" {
   ttl     = 60
   records = [each.value.value]
 
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
 resource "aws_acm_certificate_validation" "cf" {
@@ -98,9 +92,6 @@ resource "aws_acm_certificate_validation" "cf" {
   certificate_arn         = aws_acm_certificate.cf.arn
   validation_record_fqdns = [for r in aws_route53_record.cf_validation : r.fqdn]
 
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
 ############################################
@@ -161,9 +152,7 @@ resource "aws_cloudfront_distribution" "cdn" {
 
   depends_on = [aws_acm_certificate_validation.cf]
 
-  lifecycle {
-    prevent_destroy = true
-  }
+
 }
 
 ############################################
@@ -181,7 +170,5 @@ resource "aws_route53_record" "cdn_alias" {
     evaluate_target_health = false
   }
 
-  lifecycle {
-    prevent_destroy = true
-  }
+
 }
