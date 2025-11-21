@@ -18,6 +18,10 @@ variable "security_group_ids" {
   type        = list(string)
 }
 
+variable "target_type" {
+  type        = string
+  description = "Target type for ALB target group (instance or ip)"
+}
 
 variable "target_port" {
   description = "Port for target group"
