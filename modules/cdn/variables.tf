@@ -17,3 +17,8 @@ variable "hosted_zone_id" {
   type        = string
   description = "Route53 hosted zone ID for manno-cloud.com"
 }
+
+variable "web_acl_arn" {
+  type        = string
+  description = "WAF Web ACL ARN for CloudFront"
+}
