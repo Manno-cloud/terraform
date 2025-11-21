@@ -291,3 +291,24 @@ module "waf" {
 
   cloudfront_distribution_arn = module.cdn.cdn_distribution_arn
 }
+
+# ======================
+#  ECS モジュール
+# ======================
+module "ecs" {
+  source = "./modules/ecs"
+
+  project = "testapp"
+  env     = "dev"
+  region  = var.region
+
+  vpc_id             = module.networking.vpc_id
+  private_subnet_ids = module.networking.private_subnet_ids
+  public_subnet_ids  = module.networking.public_subnet_ids
+
+  alb_sg_id = module.security_group.alb_sg
+  ecs_sg_id = module.security_group.ecs_sg
+
+  ecs_task_execution_role_arn = module.iam.ecs_execution_role_arn
+  ecs_task_role_arn           = module.iam.ecs_task_role_arn
+}
