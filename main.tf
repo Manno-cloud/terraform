@@ -272,4 +272,18 @@ module "cdn" {
   env            = "dev"
   domain_name    = "cdn.manno-cloud.com"
   hosted_zone_id = module.networking.route53_zone_id
+  web_acl_arn  = module.waf.waf_arn
+}
+
+# ======================
+#  WAF モジュール
+# ======================
+module "waf" {
+  source = "./modules/waf"
+
+  project = "testapp"
+  env     = "dev"
+
+  cloudfront_distribution_arn = module.cdn.cdn_distribution_arn
+  
 }

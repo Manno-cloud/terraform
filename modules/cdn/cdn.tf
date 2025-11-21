@@ -105,6 +105,7 @@ resource "aws_cloudfront_distribution" "cdn" {
 
   aliases = [var.domain_name]
   default_root_object = "index.html"
+  web_acl_id = var.web_acl_arn
 
   origin {
     domain_name = aws_s3_bucket.cdn.bucket_regional_domain_name
