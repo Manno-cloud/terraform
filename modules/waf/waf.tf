@@ -1,4 +1,6 @@
 resource "aws_wafv2_web_acl" "waf" {
+  provider = aws.us_east_1
+
   name        = "${var.project}-${var.env}-waf"
   description = "WAF for CloudFront"
   scope       = "CLOUDFRONT"
@@ -7,15 +9,18 @@ resource "aws_wafv2_web_acl" "waf" {
     allow {}
   }
 
-  ###############################################
-  # Managed Rule Set: CommonRuleSet
-  ###############################################
+  visibility_config {
+    cloudwatch_metrics_enabled = true
+    metric_name                = "WAF"
+    sampled_requests_enabled   = true
+  }
+
   rule {
     name     = "AWSManagedRulesCommonRuleSet"
     priority = 0
 
-    action {
-      allow {}
+    override_action {
+      none {}
     }
 
     statement {
@@ -32,15 +37,12 @@ resource "aws_wafv2_web_acl" "waf" {
     }
   }
 
-  ###############################################
-  # Managed Rule Set: AmazonIpReputationList
-  ###############################################
   rule {
     name     = "AWSManagedRulesAmazonIpReputationList"
     priority = 1
 
-    action {
-      allow {}
+    override_action {
+      none {}
     }
 
     statement {
@@ -57,15 +59,12 @@ resource "aws_wafv2_web_acl" "waf" {
     }
   }
 
-  ###############################################
-  # Managed Rule Set: KnownBadInputsRuleSet
-  ###############################################
   rule {
     name     = "AWSManagedRulesKnownBadInputsRuleSet"
     priority = 2
 
-    action {
-      allow {}
+    override_action {
+      none {}
     }
 
     statement {
@@ -82,15 +81,12 @@ resource "aws_wafv2_web_acl" "waf" {
     }
   }
 
-  ###############################################
-  # Managed Rule Set: SQLiRuleSet
-  ###############################################
   rule {
     name     = "AWSManagedRulesSQLiRuleSet"
     priority = 3
 
-    action {
-      allow {}
+    override_action {
+      none {}
     }
 
     statement {
@@ -106,21 +102,4 @@ resource "aws_wafv2_web_acl" "waf" {
       sampled_requests_enabled   = true
     }
   }
-
-  ###############################################
-  # Web ACL 全体の visibility_config
-  ###############################################
-  visibility_config {
-    cloudwatch_metrics_enabled = true
-    metric_name                = "WAF"
-    sampled_requests_enabled   = true
-  }
-}
-
-###############################################
-# CloudFront Distribution と紐付け
-###############################################
-resource "aws_wafv2_web_acl_association" "cf_assoc" {
-  resource_arn = var.cloudfront_distribution_arn
-  web_acl_arn  = aws_wafv2_web_acl.waf.arn
 }
