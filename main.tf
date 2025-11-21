@@ -75,6 +75,11 @@ module "security_group" {
         rds_sg = {
       description = "RDS SG"
     }
+
+        ecs_sg = {
+      description = "ECS SG"
+    }
+
   }
 }
 
@@ -157,6 +162,48 @@ resource "aws_security_group_rule" "allow_ec2_to_rds" {
   protocol                 = "tcp"
   security_group_id        = module.security_group.security_group_ids["rds_sg"]
   source_security_group_id = module.security_group.security_group_ids["ec2_sg"]
+}
+
+
+resource "aws_security_group_rule" "allow_alb_to_rds" {
+  type                     = "ingress"
+  from_port                = 3306
+  to_port                  = 3306
+  protocol                 = "tcp"
+  security_group_id        = module.security_group.security_group_ids["rds_sg"]
+  source_security_group_id = module.security_group.security_group_ids["ec2_sg"]
+}
+
+
+resource "aws_security_group_rule" "allow_ec2_to_ecs" {
+  type                     = "ingress"
+  from_port                = 80
+  to_port                  = 80
+  protocol                 = "tcp"
+  security_group_id        = module.security_group.security_group_ids["ecs_sg"]
+  source_security_group_id = module.security_group.security_group_ids["alb_sg"]
+}
+
+resource "aws_security_group_rule" "ecs_egress" {
+  type      = "egress"
+  from_port = 0
+  to_port   = 0
+  protocol  = "-1"
+
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id        = module.security_group.security_group_ids["alb_sg"]
+}
+
+
+
+# ======================
+#  IAM モジュール
+# ======================
+module "iam" {
+  source = "./modules/iam"
+
+  project = "testapp"
+  env     = "dev"
 }
 
 # ======================
@@ -293,6 +340,16 @@ module "waf" {
 }
 
 # ======================
+#  ECR モジュール
+# ======================
+module "ecr" {
+  source = "./modules/ecr"
+
+  project = "testapp"
+  env     = "dev"
+}
+
+# ======================
 #  ECS モジュール
 # ======================
 module "ecs" {
@@ -302,13 +359,20 @@ module "ecs" {
   env     = "dev"
   region  = var.region
 
-  vpc_id             = module.networking.vpc_id
-  private_subnet_ids = module.networking.private_subnet_ids
-  public_subnet_ids  = module.networking.public_subnet_ids
+  vpc_id             = module.vpc.vpc_id
+  private_subnet_ids = module.vpc.private_subnet_ids
+  public_subnet_ids  = module.vpc.public_subnet_ids
 
-  alb_sg_id = module.security_group.alb_sg
-  ecs_sg_id = module.security_group.ecs_sg
+  alb_sg_id = module.security_group.security_group_ids["alb_sg"]
+  ecs_sg_id = module.security_group.security_group_ids["ecs_sg"]
+
+  target_group_arn = module.alb.target_group_arn
 
   ecs_task_execution_role_arn = module.iam.ecs_execution_role_arn
   ecs_task_role_arn           = module.iam.ecs_task_role_arn
+  ecr_repository_url = module.ecr.repository_url
+
+  task_cpu    = "256"
+  task_memory = "512"
 }
+
