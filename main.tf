@@ -344,7 +344,6 @@ module "waf" {
 # ======================
 module "ecr" {
   source = "./modules/ecr"
-
   project = "testapp"
   env     = "dev"
 }
