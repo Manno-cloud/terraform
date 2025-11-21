@@ -178,7 +178,7 @@ module "asg" {
     module.security_group.security_group_ids["ec2_sg"]
   ]
 
-  ami_id        = "ami-0e68e34976bb4db93"
+  ami_id        = "ami-05bf4e59eee7da796"
   instance_type = "t3.micro"
   user_data = file("${path.root}/user_data.sh")
 
@@ -210,6 +210,10 @@ module "alb" {
   enable_https    = true
 }
 
+# ======================
+#  ACM,ROUTE 53
+# ======================
+
 module "networking" {
   source = "./networking"
 
@@ -219,6 +223,9 @@ module "networking" {
   env             = "dev"
 }
 
+# ======================
+#  VPC endpoint
+# ======================
 module "vpc_endpoint" {
   source                  = "./vpc_endpoint"
   vpc_id                  = module.vpc.vpc_id

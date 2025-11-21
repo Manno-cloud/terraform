@@ -7,7 +7,7 @@ terraform {
 }
 
 ############################################
-# S3: 画像配信用バケット（private）
+# S3: private bucket for CDN
 ############################################
 
 resource "aws_s3_bucket" "cdn" {
@@ -18,47 +18,42 @@ resource "aws_s3_bucket" "cdn" {
     Project = var.project
     Env     = var.env
   }
-}
 
-# パブリックアクセス完全ブロック
-resource "aws_s3_bucket_public_access_block" "cdn" {
-  bucket = aws_s3_bucket.cdn.id
-
-  block_public_acls   = true
-  block_public_policy = true
-  ignore_public_acls  = true
-  restrict_public_buckets = true
-}
-
-############################################
-# CloudFront Origin Access Identity (OAI)
-# S3 に直接アクセスさせず、CloudFront 経由のみ許可
-############################################
-
-resource "aws_cloudfront_origin_access_identity" "oai" {
-  comment = "${var.project}-${var.env}-cdn-oai"
-}
-
-# S3 バケットポリシー: OAI からの GetObject のみ許可
-data "aws_iam_policy_document" "cdn_bucket_policy" {
-  statement {
-    actions   = ["s3:GetObject"]
-    resources = ["${aws_s3_bucket.cdn.arn}/*"]
-
-    principals {
-      type        = "AWS"
-      identifiers = [aws_cloudfront_origin_access_identity.oai.iam_arn]
-    }
+  lifecycle {
+    prevent_destroy = true
   }
 }
 
-resource "aws_s3_bucket_policy" "cdn" {
+resource "aws_s3_bucket_public_access_block" "cdn" {
   bucket = aws_s3_bucket.cdn.id
-  policy = data.aws_iam_policy_document.cdn_bucket_policy.json
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 ############################################
-# ACM (us-east-1) for CloudFront
+# Origin Access Control (OAC)
+############################################
+
+resource "aws_cloudfront_origin_access_control" "oac" {
+  name                              = "${var.project}-${var.env}-cdn-oac"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+############################################
+# ACM Certificate (us-east-1)
 ############################################
 
 resource "aws_acm_certificate" "cf" {
@@ -71,10 +66,13 @@ resource "aws_acm_certificate" "cf" {
     Project = var.project
     Env     = var.env
   }
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
-# DNS 検証用レコード (Route53)
-resource "aws_route53_record" "cf_cert_validation" {
+resource "aws_route53_record" "cf_validation" {
   for_each = {
     for dvo in aws_acm_certificate.cf.domain_validation_options :
     dvo.domain_name => {
@@ -89,12 +87,20 @@ resource "aws_route53_record" "cf_cert_validation" {
   type    = each.value.type
   ttl     = 60
   records = [each.value.value]
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_acm_certificate_validation" "cf" {
   provider                = aws.us_east_1
   certificate_arn         = aws_acm_certificate.cf.arn
-  validation_record_fqdns = [for r in aws_route53_record.cf_cert_validation : r.fqdn]
+  validation_record_fqdns = [for r in aws_route53_record.cf_validation : r.fqdn]
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 ############################################
@@ -102,41 +108,38 @@ resource "aws_acm_certificate_validation" "cf" {
 ############################################
 
 resource "aws_cloudfront_distribution" "cdn" {
-  enabled             = true
-  is_ipv6_enabled     = true
-  comment             = "${var.project}-${var.env}-cdn"
-  default_root_object = ""
+  enabled         = true
+  is_ipv6_enabled = true
+  comment         = "${var.project}-${var.env}-cdn"
 
-  aliases = [var.domain_name] # cdn.manno-cloud.com
+  aliases = [var.domain_name]
+  default_root_object = "index.html"
 
   origin {
     domain_name = aws_s3_bucket.cdn.bucket_regional_domain_name
     origin_id   = "s3-cdn-origin"
 
-    s3_origin_config {
-      origin_access_identity = aws_cloudfront_origin_access_identity.oai.cloudfront_access_identity_path
-    }
+    origin_access_control_id = aws_cloudfront_origin_access_control.oac.id
   }
 
   default_cache_behavior {
     target_origin_id       = "s3-cdn-origin"
     viewer_protocol_policy = "redirect-to-https"
 
-    allowed_methods  = ["GET", "HEAD"]
-    cached_methods   = ["GET", "HEAD"]
+    allowed_methods = ["GET", "HEAD"]
+    cached_methods  = ["GET", "HEAD"]
 
     compress = true
 
     forwarded_values {
       query_string = false
-
       cookies {
         forward = "none"
       }
     }
   }
 
-  price_class = "PriceClass_200" 
+  price_class = "PriceClass_200"
 
   restrictions {
     geo_restriction {
@@ -157,10 +160,14 @@ resource "aws_cloudfront_distribution" "cdn" {
   }
 
   depends_on = [aws_acm_certificate_validation.cf]
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 ############################################
-# Route53: cdn.manno-cloud.com → CloudFront
+# Route53 A Alias → CloudFront
 ############################################
 
 resource "aws_route53_record" "cdn_alias" {
@@ -173,23 +180,8 @@ resource "aws_route53_record" "cdn_alias" {
     zone_id                = aws_cloudfront_distribution.cdn.hosted_zone_id
     evaluate_target_health = false
   }
-}
 
-############################################
-# Outputs
-############################################
-
-output "cdn_bucket_name" {
-  value       = aws_s3_bucket.cdn.bucket
-  description = "S3 bucket used as CloudFront origin"
-}
-
-output "cdn_domain_name" {
-  value       = aws_cloudfront_distribution.cdn.domain_name
-  description = "CloudFront distribution domain name"
-}
-
-output "cdn_url" {
-  value       = "https://${var.domain_name}"
-  description = "Custom domain URL for the CDN"
+  lifecycle {
+    prevent_destroy = true
+  }
 }
