@@ -64,35 +64,6 @@ resource "aws_ecs_task_definition" "nginx" {
 }
 
 ############################################
-# ALB
-############################################
-resource "aws_lb" "app" {
-  name               = "${var.project}-${var.env}-alb"
-  load_balancer_type = "application"
-  security_groups    = [var.alb_sg_id]
-  subnets            = var.public_subnet_ids
-}
-
-resource "aws_lb_target_group" "app" {
-  name        = "${var.project}-${var.env}-tg"
-  target_type = "ip"
-  port        = 80
-  protocol    = "HTTP"
-  vpc_id      = var.vpc_id
-}
-
-resource "aws_lb_listener" "http" {
-  load_balancer_arn = aws_lb.app.arn
-  port              = 80
-  protocol          = "HTTP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.app.arn
-  }
-}
-
-############################################
 # ECS Service
 ############################################
 resource "aws_ecs_service" "nginx" {
@@ -108,7 +79,7 @@ resource "aws_ecs_service" "nginx" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.app.arn
+    target_group_arn = var.target_group_arn
     container_name    = "nginx"
     container_port    = 80
   }
