@@ -210,6 +210,10 @@ module "alb" {
   enable_https    = true
 }
 
+# ======================
+#  ACM,ROUTE 53
+# ======================
+
 module "networking" {
   source = "./networking"
 
@@ -219,6 +223,9 @@ module "networking" {
   env             = "dev"
 }
 
+# ======================
+#  VPC endpoint
+# ======================
 module "vpc_endpoint" {
   source                  = "./vpc_endpoint"
   vpc_id                  = module.vpc.vpc_id
