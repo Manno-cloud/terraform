@@ -178,7 +178,7 @@ module "asg" {
     module.security_group.security_group_ids["ec2_sg"]
   ]
 
-  ami_id        = "ami-0e68e34976bb4db93"
+  ami_id        = "ami-05bf4e59eee7da796"
   instance_type = "t3.micro"
   user_data = file("${path.root}/user_data.sh")
 
