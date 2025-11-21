@@ -12,9 +12,6 @@ terraform {
 
 resource "aws_s3_bucket" "cdn" {
   bucket = "${var.project}-${var.env}-cdn-images"
- lifecycle {
-    prevent_destroy= true
-  }
   tags = {
     Name    = "${var.project}-${var.env}-cdn-bucket"
     Project = var.project
