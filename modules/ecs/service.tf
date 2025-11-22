@@ -26,6 +26,7 @@ resource "aws_ecs_service" "app" {
   }
 
   depends_on = [
-    aws_ecs_task_definition.app
+    aws_ecs_task_definition.app,
+    aws_lb_listener.http
   ]
 }
