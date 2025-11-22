@@ -60,3 +60,7 @@ variable "task_memory" {
 variable "target_group_arn" {
   type = string
 }
+
+variable "listener_arn" {
+  type = string
+}

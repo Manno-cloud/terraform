@@ -25,7 +25,9 @@ resource "aws_ecs_service" "app" {
     ignore_changes = [desired_count]
   }
 
-  depends_on = [
-    aws_ecs_task_definition.app
-  ]
+depends_on = [
+  aws_ecs_task_definition.app,
+  var.listener_arn
+]
+
 }

@@ -374,6 +374,7 @@ module "ecs" {
   ecs_sg_id = module.security_group.security_group_ids["ecs_sg"]
 
   target_group_arn = module.alb_ecs.target_group_arn
+  listener_arn     = module.alb_ecs.https_listener_arn
 
   ecs_task_execution_role_arn = module.iam.ecs_execution_role_arn
   ecs_task_role_arn           = module.iam.ecs_task_role_arn
