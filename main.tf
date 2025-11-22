@@ -180,7 +180,7 @@ resource "aws_security_group_rule" "ecs_egress" {
   protocol  = "-1"
 
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id        = module.security_group.security_group_ids["alb_sg"]
+  security_group_id        = module.security_group.security_group_ids["ecs_sg"]
 }
 
 
