@@ -8,7 +8,7 @@ variable "tags" {
 }
 
 variable "security_groups" {
-  description = "複数の SG（本体のみ）を作る"
+  description = "複数のSGの本体のみを作る"
   type = map(object({
     description = string
     # ルールはモジュール外で作るので不要
