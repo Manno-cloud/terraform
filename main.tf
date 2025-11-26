@@ -442,6 +442,19 @@ resource "aws_route53_record" "cdn" {
   }
 }
 
+# ドメイン → ALB
+resource "aws_route53_record" "app" {
+  zone_id = module.route53.route53_zone_id
+  name    = "app.manno-cloud.com"
+  type    = "A"
+
+  alias {
+    name                   = module.alb.alb_dns_name
+    zone_id                = module.alb.alb_zone_id
+    evaluate_target_health = true
+  }
+}
+
 # ======================
 #  WAF モジュール
 # ======================
@@ -466,7 +479,7 @@ module "waf" {
 # ======================
 module "ecr" {
   source  = "./modules/ecr"
-  
+
   project = "testapp"
   env     = "dev"
 }
