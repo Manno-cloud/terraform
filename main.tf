@@ -79,32 +79,32 @@ module "security_group" {
     # ALB 用 Security Group
     alb_sg = {
       name        = "alb_sg"
-      description = "ALB SG"
+      description = "ALB用SG"
     }
 
     # EC2 用 Security Group
     ec2_sg = {
       name        = "ec2_sg"
-      description = "EC2 SG"
+      description = "EC2用SG"
     }
 
     # VPC Endpoint 用 Security Group
     vpc_endpoint_sg = {
       name        = "vpc_endpoint_sg"
-      description = "vpc_endpoint SG"
+      description = "vpcエンドポイント用SG"
     }
 
 
     # RDS 用 Security Group
     rds_sg = {
       name        = "rds_sg"
-      description = "RDS SG"
+      description = "RDS用SG"
     }
 
     # ECS(Fargate) 用 Security Group
     ecs_sg = {
       name        = "ecs_sg"
-      description = "ECS SG"
+      description = "ECS用SG"
     }
   }
 }
