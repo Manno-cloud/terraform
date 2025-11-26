@@ -79,32 +79,32 @@ module "security_group" {
     # ALB 用 Security Group
     alb_sg = {
       name        = "alb_sg"
-      description = "ALB用SG"
+      description = "ALB SG"
     }
 
     # EC2 用 Security Group
     ec2_sg = {
       name        = "ec2_sg"
-      description = "EC2用SG"
+      description = "EC2 SG"
     }
 
     # VPC Endpoint 用 Security Group
     vpc_endpoint_sg = {
       name        = "vpc_endpoint_sg"
-      description = "vpcエンドポイント用SG"
+      description = "vpc_endpoint SG"
     }
 
 
     # RDS 用 Security Group
     rds_sg = {
       name        = "rds_sg"
-      description = "RDS用SG"
+      description = "RDS SG"
     }
 
     # ECS(Fargate) 用 Security Group
     ecs_sg = {
       name        = "ecs_sg"
-      description = "ECS用SG"
+      description = "ECS SG"
     }
   }
 }
@@ -275,6 +275,7 @@ module "iam" {
   project = "testapp"
   env     = "dev"
 }
+
 
 # ======================
 #  ALB モジュール
@@ -465,6 +466,7 @@ module "waf" {
 # ======================
 module "ecr" {
   source  = "./modules/ecr"
+  
   project = "testapp"
   env     = "dev"
 }
@@ -512,4 +514,31 @@ module "ssm_parameter" {
 
   parameter_name  = "/testapp/dev/rds/password"
   parameter_value = var.rds_password
+}
+
+############################################
+# SNS（アラート通知）モジュール
+############################################
+module "sns" {
+  source = "./modules/sns"
+
+  project = "testapp"
+  env     = "dev"
+}
+
+############################################
+# 監視（CloudWatch Alarm）モジュール呼び出し
+############################################
+module "monitoring" {
+  source = "./modules/monitoring"
+
+  project = "testapp"
+  env     = "dev"
+
+  alb_arn_suffix    = module.alb.alb_arn_suffix
+  ecs_cluster_name = module.ecs.cluster_name
+  ecs_service_name = module.ecs.service_name
+  rds_instance_id  = module.rds.db_instance_id
+
+  sns_topic_arn = module.sns.topic_arn
 }
