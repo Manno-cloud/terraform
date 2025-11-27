@@ -12,6 +12,9 @@ resource "aws_sns_topic" "alert" {
     Name    = "${var.project}-${var.env}-alert"
     Project = var.project
     Env     = var.env
+
+     # CI/CD デモ用のタグ（noop ではなく in-place update を発生させる）
+    CICD = "true"
   }
 }
 
