@@ -540,7 +540,7 @@ module "sns" {
 }
 
 ############################################
-# 監視（CloudWatch Alarm）モジュール呼び出し
+# 監視（CloudWatch Alarm）モジュール
 ############################################
 module "monitoring" {
   source = "./modules/monitoring"
