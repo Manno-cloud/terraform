@@ -449,8 +449,8 @@ resource "aws_route53_record" "app" {
   type    = "A"
 
   alias {
-    name                   = module.alb.alb_dns_name
-    zone_id                = module.alb.alb_zone_id
+    name                   = module.alb_ecs.alb_dns_name
+    zone_id                = module.alb_ecs.alb_zone_id
     evaluate_target_health = true
   }
 }
