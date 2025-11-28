@@ -9,8 +9,11 @@ IaC + 承認制デプロイで再現しています。
 必要に応じていつでもフル環境を再構築できる構成になっています。
 
 ---
+## 構成図
+<img width="1161" height="1119" alt="terraform構成図" src="https://github.com/user-attachments/assets/84f0f366-bd31-40c1-975b-347523aab42d" />
+---
 
-## 🏗️ 構成概要
+## 構成概要
 
 ### クラウド / IaC
 - クラウド: **AWS（ap-northeast-1 / Tokyo）**
@@ -27,7 +30,7 @@ IaC + 承認制デプロイで再現しています。
 - **VPC（3AZ）**
 - **Public / Private Subnet 分離**
 - **Internet Gateway / NAT Gateway**
-- **VPC Endpoint（ECR / Logs）**
+- **VPC Endpoint**
 
 ### コンピュート
 - **ECS Fargate（コンテナ Web アプリケーション）**
@@ -59,11 +62,6 @@ IaC + 承認制デプロイで再現しています。
   - RDS CPU
 - **SNS 通知連携**
 - ---
-
-## 構成図
-<img width="1161" height="1119" alt="terraform構成図" src="https://github.com/user-attachments/assets/84f0f366-bd31-40c1-975b-347523aab42d" />
----
-
 ## ディレクトリ構成
 
 ```text
