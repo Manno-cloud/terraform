@@ -2,7 +2,7 @@
 
 本リポジトリは、Terraform と GitHub Actions を用いて  
 AWS 上に本番想定の Web アプリケーション基盤を Terraform により IaC 化したポートフォリオです。  
-設計・構築・運用・CI/CD・証明書・DNS・CDN までを一通り網羅しており、  
+設計・構築・運用・CI/CD・監視設計・証明書管理・DNS・CDN までを一通り網羅しており、  
 IaC + 承認制デプロイで再現しています。
 
 コスト最適化のため、通常時は `terraform destroy` 済みとしており、  
