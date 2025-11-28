@@ -47,7 +47,7 @@ IaC + 承認制デプロイで再現しています。
 - **ACM（ap-northeast-1 / us-east-1）**
 
 ### セキュリティ
-- **AWS WAF（CloudFront / ALB に適用）**
+- **AWS WAF（CloudFronに適用）**
 - **IAM（最小権限設計）**
 - **Security Group による通信制御**
 - **SSM Parameter Store（SecureString による機密情報管理）**
@@ -58,10 +58,13 @@ IaC + 承認制デプロイで再現しています。
   - ECS CPU
   - RDS CPU
 - **SNS 通知連携**
+- ---
 
+## 構成図
+<img width="1161" height="1119" alt="terraform構成図" src="https://github.com/user-attachments/assets/84f0f366-bd31-40c1-975b-347523aab42d" />
 ---
 
-## 📁 ディレクトリ構成
+## ディレクトリ構成
 
 ```text
 .
