@@ -10,7 +10,7 @@ IaC + 承認制デプロイで再現しています。
 
 ---
 ## 構成図
-<img width="1161" height="1119" alt="terraform構成図" src="https://github.com/user-attachments/assets/84f0f366-bd31-40c1-975b-347523aab42d" />
+![terraform構成図](https://github.com/user-attachments/assets/6ebbdcd4-7855-4263-89ca-a24a9d59b342)
 ---
 
 ## 構成概要
