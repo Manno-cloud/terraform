@@ -1,0 +1,62 @@
+PS C:\WINDOWS\system32>
+PS C:\WINDOWS\system32> # CSV出力先
+PS C:\WINDOWS\system32> $CsvPath = "C:\Temp\E3_NoSharePoint.csv"
+PS C:\WINDOWS\system32>
+PS C:\WINDOWS\system32> New-Item -ItemType Directory -Path "C:\Temp" -Force |
+>>     Out-Null
+PS C:\WINDOWS\system32>
+PS C:\WINDOWS\system32> # Microsoft 365 E3 のSKU
+PS C:\WINDOWS\system32> $E3Sku = Get-MgSubscribedSku |
+>>     Where-Object { $_.SkuPartNumber -eq "SPE_E3" }
+PS C:\WINDOWS\system32>
+PS C:\WINDOWS\system32> if (-not $E3Sku) {
+>>     throw "Microsoft 365 E3が見つかりません"
+>> }
+PS C:\WINDOWS\system32>
+PS C:\WINDOWS\system32> # E3が付与されているユーザーを取得
+PS C:\WINDOWS\system32> $Users = Get-MgUser -All `
+>>     -Property "Id,DisplayName,UserPrincipalName,AssignedLicenses" |
+>>     Where-Object {
+>>         $_.AssignedLicenses.SkuId -contains $E3Sku.SkuId
+>>     }
+PS C:\WINDOWS\system32>
+PS C:\WINDOWS\system32> # SharePoint Plan 2 が無効なユーザーを抽出
+PS C:\WINDOWS\system32> $Result = foreach ($User in $Users) {
+>>
+>>     $Licenses = Get-MgUserLicenseDetail -UserId $User.Id
+>>
+>>     $E3License = $Licenses |
+>>         Where-Object { $_.SkuId -eq $E3Sku.SkuId }
+>>
+>>     $SPPlan = $E3License.ServicePlans |
+>>         Where-Object {
+>>             $_.ServicePlanName -eq "SHAREPOINTENTERPRISE"
+>>         }
+>>
+>>     if (-not $SPPlan -or
+>>         $SPPlan.ProvisioningStatus -eq "Disabled") {
+>>
+>>         [PSCustomObject]@{
+>>             DisplayName       = $User.DisplayName
+>>             UserPrincipalName = $User.UserPrincipalName
+>>             SharePointStatus  = if ($SPPlan) {
+>>                 $SPPlan.ProvisioningStatus
+>>             } else {
+>>                 "NotAssigned"
+>>             }
+>>         }
+>>     }
+>> }
+PS C:\WINDOWS\system32>
+PS C:\WINDOWS\system32> # CSV出力
+PS C:\WINDOWS\system32> $Result | Export-Csv `
+>>     -Path $CsvPath `
+>>     -NoTypeInformation `
+>>     -Encoding UTF8
+Export-Csv : 引数が null であるため、パラメーター 'InputObject' にバインドできません。
+発生場所 行:1 文字:11
++ $Result | Export-Csv `
++           ~~~~~~~~~~~~
+    + CategoryInfo          : InvalidData: (:) [Export-Csv]、ParameterBindingValidationException
+    + FullyQualifiedErrorId : ParameterArgumentValidationErrorNullNotAllowed,Microsoft.PowerShell.Commands.ExportCsvCo
+   mmand
